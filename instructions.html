@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>instructions.utf8</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+      .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+
+
+
+<div id="upload-your-data-or-query-the-landscape-data-commons" class="section level3">
+<h3>1) Upload your data or query the Landscape Data Commons</h3>
+<p>You can either query data from the Landscape Data Commons with an ecological site ID <em>or</em> upload a .CSV (comma-separated values) file containing your data in a tidy format (i.e., every row is an observation/plot and every column contains a different indicator value). This is the default format for CSV exports from the Terrestrial AIM Database (TerrADat).</p>
+</div>
+<div id="select-the-variable-to-plot" class="section level3">
+<h3>2) Select the variable to plot</h3>
+<p>In the dropdown, select which variable or indicator you want to plot. The available options will be all the column names that contained data that could be numeric. Be aware, this may include nonsense options like the unique identifying field, e.g., “ObjectID”.</p>
+</div>
+<div id="decide-your-x-axis-label" class="section level3">
+<h3>3) Decide your x-axis label</h3>
+<p>By default, the x-axis label will be the same as the variable name. It may make sense to change the label to be clearer or more human-friendly, e.g. changing “Foliar.Cover.Pct” to “Foliar cover (%)”.</p>
+</div>
+<div id="decide-your-quantile-break-percentages" class="section level3">
+<h3>4) Decide your quantile break percentages</h3>
+<p>The histogram will be broken into quantiles according to these percentages, visualized as a histogram with color and vertical lines representing the breakpoints. As an example, entering “33, 67” will result in showing the value for the variable below which 33% percent of observations fall and the value of the variable below which 67% of the observations fall. The percentages entered must be numbers between 0 and 100 separated by commas. If your entry is invalid, the figure will default to showing the 50% break.</p>
+</div>
+<div id="decide-your-benchmark-expression" class="section level3">
+<h3>5) Decide your benchmark expression</h3>
+<p>A benchmark is an inequality against which all the values will be compared, e.g., &gt;= 25. The figure will show the distribution of values as a histogram with the breaking line for the benchmark cutoff and color code the histogram according to whether the observations are meeting the benchmark or not.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+
+</body>
+</html>
