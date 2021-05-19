@@ -7,7 +7,7 @@ output:
 ---
 
 ### 1) Upload your data or query the Landscape Data Commons
-You can either query data from the Landscape Data Commons with an ecological site ID *or* upload a .CSV (comma-separated values) file containing your data in a tidy format (i.e., every row is an observation/plot and every column contains a different indicator value). This is the default format for CSV exports from the Terrestrial AIM Database (TerrADat).
+You can either query data from the Landscape Data Commons with an ecological site ID (search for ecological sites on [EDIT](https://edit.jornada.nmsu.edu)) *or* upload a .CSV (comma-separated values) file containing your data in a tidy format, i.e., every row is an observation/plot and every column contains a different indicator value. This is the default format for the Terrestrial AIM Database (TerrADat) which can by accessed by Department of Interior employees [here](https://aim.landscapetoolbox.org/aim-data-portal) and everyone else [here](https://landscape.blm.gov/geoportal/catalog/main/home.page).
 
 ### 2) Select the variable to plot
 In the dropdown, select which variable or indicator you want to plot. The available options will be all the column names that contained data that could be numeric. Be aware, this may include nonsense options like the unique identifying field, e.g., "ObjectID".
