@@ -52,6 +52,7 @@ ui <- fluidPage(
                                 label = "Benchmark cutoff value",
                                 value = 0,
                                 min = 0))),
+            hr(),
             # Only show the plot button if data have been uploaded/downloaded
             conditionalPanel(condition = "input.variable != ''",
                              actionButton(inputId = "plot_button",
