@@ -42,7 +42,7 @@ ui <- fluidPage(
             textInput(inputId = "quantiles",
                       label = "Quantile break percentages, separated by commas",
                       value = "25, 50, 75"),
-            column(width = 5,
+            fluidRow(column(width = 5,
                    selectInput(inputId = "benchmark_relationship",
                                label = "Benchmark relationship",
                                choices = c("<", "<=", ">", ">="),
@@ -51,8 +51,7 @@ ui <- fluidPage(
                    numericInput(inputId = "benchmark_value",
                                 label = "Benchmark cutoff value",
                                 value = 0,
-                                min = 0)),
-            helpText(""),
+                                min = 0))),
             # Only show the plot button if data have been uploaded/downloaded
             conditionalPanel(condition = "input.variable != ''",
                              actionButton(inputId = "plot_button",
