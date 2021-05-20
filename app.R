@@ -72,11 +72,9 @@ ui <- fluidPage(
                         tabPanel(title = "Results",
                                  plotOutput("quantiles_plot"),
                                  # plotlyOutput("quantiles_plot"),
-                                 # verbatimTextOutput("quantile_breaks"),
                                  textOutput("quantile_breaks"),
                                  plotOutput("benchmark_plot"),
                                  # plotlyOutput("benchmark_plot"),
-                                 # verbatimTextOutput("benchmark_summary")),
                                  textOutput("benchmark_summary")),
                         tabPanel(title = "Data",
                                  tableOutput("data_table")))
