@@ -66,7 +66,7 @@ data[["Quantile"]] <- factor(data[["Quantile"]],
                              levels = quantile_names)
 
 # Plot!
-ggplot(data = data) +
+quantile_plot <- ggplot(data = data) +
   geom_histogram(aes(y = current_variable,
                      fill = Quantile),
                  binwidth = 1) +
@@ -82,38 +82,74 @@ ggplot(data = data) +
   ylim(0, NA) +
   coord_flip()
 
-# Now time to do this with the theoretical benchmark
-relationship <- "<="
-benchmark_value <- 30
-benchmark_string <- paste0(relationship, benchmark_value)
+quantile_plot
 
-evaluation_strings <- paste0(data$current_variable, benchmark_string)
-strings_evaluated <- sapply(X = evaluation_strings,
-                            FUN = function(X){
-                              eval(parse(text = X))
-                            })
-benchmark_results <- rep("Not Meeting",
-                         times = length(strings_evaluated))
-benchmark_results[strings_evaluated] <- "Meeting"
-data[["benchmark_results"]] <- benchmark_results
+plotly::ggplotly(quantile_plot)
 
-benchmark_results_summary <- table(benchmark_results)
-percent_meeting <- 100 * benchmark_results_summary["Meeting"] / sum(benchmark_results_summary)
 
-# Plot!
-ggplot(data = data) +
-  geom_histogram(aes(y = current_variable,
-                     fill = benchmark_results),
-                 binwidth = 1) +
-  scale_fill_manual(values = current_palette) +
-  geom_hline(yintercept = benchmark_value,
-             size = 1.5,
-             color = "gray50") +
-  labs(x = "Count of plots",
-       y = variable_friendly_name,
-       fill = "Benchmark Status") +
-  theme(panel.grid = element_blank(),
-        panel.background = element_rect(fill = "gray95")) +
-  xlim(0, NA) +
-  ylim(0, NA) +
-  coord_flip()
+paste0("The distribution of values for the indicator across ", sum(benchmark_results_summary), " plots, broken into ", length(quantiles) + 1, " quantiles. ",
+       paste0(paste0(paste0(names(quantiles), " of plots have a value <= "),
+                     round(quantiles, digits = 1),
+                     collapse = ", "),
+              ", and 100% of plots have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)))
+       
+       
+       # Now time to do this with the theoretical benchmark
+       relationship <- "<="
+       benchmark_value <- 30
+       benchmark_string <- paste(relationship, benchmark_value)
+       
+       evaluation_strings <- paste0(data$current_variable, benchmark_string)
+       strings_evaluated <- sapply(X = evaluation_strings,
+                                   FUN = function(X){
+                                     eval(parse(text = X))
+                                   })
+       benchmark_results <- rep("Not Meeting",
+                                times = length(strings_evaluated))
+       benchmark_results[strings_evaluated] <- "Meeting"
+       data[["benchmark_results"]] <- benchmark_results
+       
+       benchmark_results_summary <- table(benchmark_results)
+       
+       # In case all the plots fell into one category
+       meeting_count <- benchmark_results_summary["Meeting"]
+       if (is.null(meeting_count) | is.na(meeting_count)) {
+         meeting_count <- 0
+       }
+       not_meeting_count <- benchmark_results_summary["Not Meeting"]
+       if (is.null(not_meeting_count) | is.na(not_meeting_count)) {
+         not_meeting_count <- 0
+       }
+       
+       percent_meeting <- round(100 * meeting_count / sum(benchmark_results_summary),
+                                digits = 1)
+       percent_not_meeting = 100 - percent_meeting
+       
+       # Plot!
+       benchmark_plot <- ggplot(data = data) +
+         geom_histogram(aes(y = current_variable,
+                            fill = benchmark_results),
+                        binwidth = 1) +
+         scale_fill_manual(values = current_palette) +
+         geom_hline(yintercept = benchmark_value,
+                    size = 1.5,
+                    color = "gray50") +
+         labs(x = "Count of plots",
+              y = variable_friendly_name,
+              fill = "Benchmark Status") +
+         theme(panel.grid = element_blank(),
+               panel.background = element_rect(fill = "gray95")) +
+         xlim(0, NA) +
+         ylim(0, NA) +
+         coord_flip()
+       
+       benchmark_plot
+       
+       plotly::ggplotly(benchmark_plot)
+       
+       
+       test <- paste0("The distribution of values for the indicator across ", sum(benchmark_results_summary), " plots classified as meeting or not meeting the benchmark of ",
+                      benchmark_string, ".")
+       test2 <- paste0("Of the ", sum(benchmark_results_summary), " plots, ", percent_meeting, "% (", meeting_count, " plots) met the benchmark and ",
+                       percent_not_meeting, "% (", not_meeting_count, " plots) did not meet the benchmark.")
+       
