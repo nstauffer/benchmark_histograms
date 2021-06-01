@@ -21,14 +21,14 @@ variable_name <- "Bare.Soil.Pct"
 variable_friendly_name <- "Bare soil cover (%)"
 
 # Make the palette!
-current_palette <- c("#f5bb57ff",
-                     "#f8674cff",
-                     "#4a8b9fff",
-                     "#685b7fff",
-                     "#c95294ff",
-                     "#f5a9c6ff",
-                     "#75c6c5ff",
-                     "#fd6794ff")
+current_palette <- c("#f5bb57ff", # Mustard
+                     "#f8674cff", # Orange
+                     "#4a8b9fff", # Blue
+                     "#685b7fff", # Purple
+                     "#c95294ff", # Fuschia
+                     "#f5a9c6ff", # Pink
+                     "#75c6c5ff", # Teal
+                     "#fd6794ff") # Hot Pink
 
 #! What are the quantile proportions?
 quantile_proportions <- c(0.25, 0.5, 0.75)
