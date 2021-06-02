@@ -1,3 +1,4 @@
+# This Dockerfile is for the Benchmark Histograms tool
 # Get image with R and Shiny preinstalled
 FROM rocker/shiny:latest
 
