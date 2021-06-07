@@ -24,8 +24,8 @@ RUN R -e "install.packages('httr', repos='http://cran.rstudio.com/')"
 
 # Copy the app to the image
 # There are only two files needed and we'll put them in /srv/benchmark-histograms:
-COPY app.R /srv/benchmark-histograms/
-COPY instructions.html /srv/benchmark-histograms/
+# COPY app.R /srv/benchmark-histograms/
+# COPY instructions.html /srv/benchmark-histograms/
 
 # Select port so we can actually talk to the app
 EXPOSE 3838
