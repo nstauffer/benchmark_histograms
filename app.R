@@ -124,13 +124,19 @@ server <- function(input, output, session) {
                    ecosite_id <- toupper(input$ecosite_id)
                    
                    # Build the query
-                   query <- paste0("https://api.landscapedatacommons.org/api/",
+                   query <- paste0("http://api.landscapedatacommons.org/api/",
                                    "geoindicators?",
                                    "EcologicalSiteId=",
                                    ecosite_id)
-                   
+
+                   # Getting the data via curl
+                   # connection <- curl::curl(query)
+                   # results_raw <- readLines(connection)
+                   # results <- jsonlite::fromJSON(results_raw)
+                   print("Attempting to query EDIT")
                    # Full query results for geoindicators based on ecosite
-                   full_results <- httr::GET(query)
+                   full_results <- httr::GET(query,
+                                             config = httr::timeout(30))
                    # Grab only the data portion
                    results_raw <- full_results[["content"]]
                    # Convert from raw to character
