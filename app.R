@@ -66,7 +66,7 @@ ui <- fluidPage(
       # Only show if there are plot images to download
       conditionalPanel(condition = "input.plot_button >= 1",
                        downloadButton(outputId = 'downloadData',
-                                      label = 'Download plots'))
+                                      label = 'Download results'))
     ),
     
     # Show a plot of the generated distribution
