@@ -35,6 +35,10 @@ ui <- fluidPage(
       actionButton(inputId = "fetch_data",
                    label = "Fetch data from the Landscape Data Commons"),
       hr(),
+      selectInput(inputId = "id_variables",
+                  label = "Variable(s) with identifying, non-indicator information",
+                  multiple = TRUE,
+                  choices = c("")),
       selectInput(inputId = "variable",
                   label = "Indicator to plot",
                   choices = c("")),
@@ -193,8 +197,10 @@ server <- function(input, output, session) {
                                            })
                  
                  # Update the dropdown options to include those variables
+                 updateSelectInput(inputId = "id_variables",
+                                   choices = c("", variable_names))
                  updateSelectInput(inputId = "variable",
-                                   choices = variable_names[viable_variables])
+                                   choices = c("", variable_names[viable_variables]))
                  
                  output$data_table <- renderTable(workspace$raw_data)
                  
@@ -209,6 +215,28 @@ server <- function(input, output, session) {
                  updateTextInput(session,
                                  inputId = "variable_name",
                                  value = input$variable)
+               })
+  
+  #### When the identifying variables are updated, do this ####
+  observeEvent(eventExpr = input$id_variables,
+               handlerExpr = {
+                 # Get the variable names in the CSV
+                 variable_names <- names(workspace$raw_data)
+                 
+                 # Look at each column and determine if it can be coerced into numeric
+                 viable_variables <- apply(X = workspace$raw_data,
+                                           MARGIN = 2,
+                                           FUN = function(X){
+                                             vector <- X
+                                             numeric_vector <- as.numeric(vector)
+                                             any(!is.na(numeric_vector))
+                                           })
+                 
+                 not_id_variable <- !(variable_names %in% input$id_variables)
+                 
+                 # Update!
+                 updateSelectInput(inputId = "variable",
+                                   choices = c("", variable_names[viable_variables & not_id_variable]))
                })
   
   ### When the quantiles are updated, do this ####
