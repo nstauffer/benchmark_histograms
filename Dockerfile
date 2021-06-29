@@ -29,6 +29,8 @@ RUN R -e "install.packages('httr', repos='http://cran.rstudio.com/')"
 
 # Select port so we can actually talk to the app
 EXPOSE 3838
+# This is an attempt to let the app make API calls over HTTPS
+EXPOSE 443
 
 # Allow permission
 # No idea why this is here, it was inherited from an example
