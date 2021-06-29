@@ -275,7 +275,6 @@ server <- function(input, output, session) {
   #### When the plot button is hit, do this ####
   observeEvent(eventExpr = input$plot_button,
                handlerExpr = {
-                 
                  # Get a copy of the data to manipulate for plotting
                  plotting_data <- workspace$raw_data
                  
@@ -432,10 +431,18 @@ server <- function(input, output, session) {
                    
                    output$benchmark_summary <- renderText(benchmark_plot_caption)
                    
+                   output_data <- plotting_data[, c(input$id_variables,
+                                                    input$variable,
+                                                    "benchmark_results")]
                    
                    # Create a .zip fle in case user wants the plots, which depends on a system call
                    # I'm not sure why we switch working directories for this, but I'm afraid to change it
                    setwd(workspace$temp_directory)
+                   
+                   # Write out the benchmarked data for download
+                   write.csv(output_data,
+                             file = "benchmarked_data.csv",
+                             row.names = FALSE)
                    
                    # Write out the captions as a text file for downloading
                    writeLines(text = paste(quantile_plot_caption,
@@ -443,7 +450,7 @@ server <- function(input, output, session) {
                                            sep = "\n\n"),
                               con = "captions.txt")
                    
-                   files_to_zip <- list.files(pattern = "\\.(png|txt)$",
+                   files_to_zip <- list.files(pattern = "\\.(png|txt|csv)$",
                                               ignore.case = TRUE)
                    
                    switch(Sys.info()[["sysname"]],
