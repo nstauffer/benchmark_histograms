@@ -522,7 +522,7 @@ server <- function(input, output, session) {
                        geom_hline(yintercept = quantiles,
                                   size = 1.5,
                                   color = "gray50") +
-                       labs(x = "Count of plots",
+                       labs(x = "Count of data points",
                             y = input$variable_name) +
                        theme(panel.grid = element_blank(),
                              panel.background = element_rect(fill = "gray95")) +
@@ -645,7 +645,7 @@ server <- function(input, output, session) {
                                         fill = benchmark_results),
                                     binwidth = 1) +
                      scale_fill_manual(values = workspace$palette) +
-                     labs(x = "Count of plots",
+                     labs(x = "Count of data points",
                           y = input$variable_name,
                           fill = "Benchmark status") +
                      theme(panel.grid = element_blank(),
@@ -667,11 +667,11 @@ server <- function(input, output, session) {
                                      selected = "Results") 
                    
                    # Create the caption for the quantile plot
-                   quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " plots, broken into ", length(quantiles) + 1, " quantiles. ",
-                                                   paste0(paste0(paste0(names(quantiles), " of plots have a value <= "),
+                   quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " data points, broken into ", length(quantiles) + 1, " quantiles. ",
+                                                   paste0(paste0(paste0(names(quantiles), " of data points have a value <= "),
                                                                  round(quantiles, digits = 1),
                                                                  collapse = ", "),
-                                                          ", and 100% of plots have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)))
+                                                          ", and 100% of data points have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)))
                    
                    output$quantile_breaks <- renderText(quantile_plot_caption)
                    
@@ -682,8 +682,8 @@ server <- function(input, output, session) {
                    
                    # Create the caption for the benchmark plot
                    benchmark_plot_caption <- paste0("Figure 2: The distribution of values for the indicator across ", sum(benchmark_results_summary),
-                                                    " plots classified into benchmark categories. ",
-                                                    "Of the ", sum(benchmark_results_summary), " plots, ",
+                                                    " data points classified into benchmark categories. ",
+                                                    "Of the ", sum(benchmark_results_summary), " data points, ",
                                                     category_statements, ".")
                    
                    output$benchmark_summary <- renderText(benchmark_plot_caption)
