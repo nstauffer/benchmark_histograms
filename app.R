@@ -71,6 +71,22 @@ ui <- fluidPage(
                                        label = "Number of benchmark ranges",
                                        choices = 2:6,
                                        selected = 2),
+                           # Labels
+                           fluidRow(column(width = 2,
+                                           helpText("Lower limit")),
+                                    column(width = 1,
+                                           helpText("Lower limit relation")),
+                                    column(width = 1,
+                                           helpText("Indicator value")),
+                                    column(width = 1,
+                                           helpText("Upper limit relation")),
+                                    column(width = 2,
+                                           helpText("Upper limit")),
+                                    
+                                    column(width = 3,
+                                           helpText("Benchmark category")),
+                                    hr()
+                           ),
                            # Row 1
                            fluidRow(column(width = 2,
                                            numericInput(inputId = "benchmark_range_limit_lower_1",
@@ -84,7 +100,7 @@ ui <- fluidPage(
                                                        choices = c("<", "<="),
                                                        selected = "<=")),
                                     column(width = 1,
-                                           helpText("Indicator value")),
+                                           helpText("x")),
                                     column(width = 1,
                                            selectInput(inputId = "benchmark_relationship_upper_1",
                                                        label = "",
@@ -99,9 +115,10 @@ ui <- fluidPage(
                                     
                                     column(width = 3,
                                            textInput(inputId = "benchmark_category_1",
-                                                     label = "Benchmark category label",
+                                                     label = "",
                                                      placeholder = "Not Meeting",
-                                                     value = "Not Meeting"))
+                                                     value = "Not Meeting")),
+                                    hr()
                            ),
                            # Row 2
                            fluidRow(column(width = 2,
@@ -116,7 +133,7 @@ ui <- fluidPage(
                                                        choices = c("<", "<="),
                                                        selected = "<")),
                                     column(width = 1,
-                                           helpText("Indicator value")),
+                                           helpText("x")),
                                     column(width = 1,
                                            selectInput(inputId = "benchmark_relationship_upper_2",
                                                        label = "",
@@ -131,9 +148,10 @@ ui <- fluidPage(
                                     
                                     column(width = 3,
                                            textInput(inputId = "benchmark_category_2",
-                                                     label = "Benchmark category label",
+                                                     label = "",
                                                      placeholder = "Not Meeting",
-                                                     value = "Meeting"))
+                                                     value = "Meeting")),
+                                    hr()
                            ),
                            # Row 3
                            conditionalPanel(condition = "input.range_count > 2",
@@ -149,7 +167,7 @@ ui <- fluidPage(
                                                                         choices = c("<", "<="),
                                                                         selected = "<")),
                                                      column(width = 1,
-                                                            helpText("Indicator value")),
+                                                            helpText("x")),
                                                      column(width = 1,
                                                             selectInput(inputId = "benchmark_relationship_upper_3",
                                                                         label = "",
@@ -164,9 +182,10 @@ ui <- fluidPage(
                                                      
                                                      column(width = 3,
                                                             textInput(inputId = "benchmark_category_3",
-                                                                      label = "Benchmark category label",
+                                                                      label = "",
                                                                       placeholder = "Not Meeting",
-                                                                      value = ""))
+                                                                      value = "")),
+                                                     hr()
                                             )),
                            # Row 4
                            conditionalPanel(condition = "input.range_count > 3",
@@ -182,7 +201,7 @@ ui <- fluidPage(
                                                                         choices = c("<", "<="),
                                                                         selected = "<")),
                                                      column(width = 1,
-                                                            helpText("Indicator value")),
+                                                            helpText("x")),
                                                      column(width = 1,
                                                             selectInput(inputId = "benchmark_relationship_upper_4",
                                                                         label = "",
@@ -197,9 +216,10 @@ ui <- fluidPage(
                                                      
                                                      column(width = 3,
                                                             textInput(inputId = "benchmark_category_4",
-                                                                      label = "Benchmark category label",
+                                                                      label = "",
                                                                       placeholder = "Not Meeting",
-                                                                      value = ""))
+                                                                      value = "")),
+                                                     hr()
                                             )),
                            # Row 5
                            conditionalPanel(condition = "input.range_count > 4",
@@ -215,7 +235,7 @@ ui <- fluidPage(
                                                                         choices = c("<", "<="),
                                                                         selected = "<")),
                                                      column(width = 1,
-                                                            helpText("Indicator value")),
+                                                            helpText("x")),
                                                      column(width = 1,
                                                             selectInput(inputId = "benchmark_relationship_upper_5",
                                                                         label = "",
@@ -230,9 +250,10 @@ ui <- fluidPage(
                                                      
                                                      column(width = 3,
                                                             textInput(inputId = "benchmark_category_5",
-                                                                      label = "Benchmark category label",
+                                                                      label = "",
                                                                       placeholder = "Not Meeting",
-                                                                      value = ""))
+                                                                      value = "")),
+                                                     hr()
                                             )),
                            # Row 6
                            conditionalPanel(condition = "input.range_count > 5",
@@ -248,7 +269,7 @@ ui <- fluidPage(
                                                                         choices = c("<", "<="),
                                                                         selected = "<")),
                                                      column(width = 1,
-                                                            helpText("Indicator value")),
+                                                            helpText("x")),
                                                      column(width = 1,
                                                             selectInput(inputId = "benchmark_relationship_upper_6",
                                                                         label = "",
@@ -263,9 +284,10 @@ ui <- fluidPage(
                                                      
                                                      column(width = 3,
                                                             textInput(inputId = "benchmark_category_6",
-                                                                      label = "Benchmark category label",
+                                                                      label = "",
                                                                       placeholder = "Not Meeting",
-                                                                      value = ""))
+                                                                      value = "")),
+                                                     hr()
                                             ))
                   ),
                   
