@@ -66,7 +66,7 @@ ui <- fluidPage(
                   tabPanel(title = "Instructions",
                            includeHTML("instructions.html")),
                   
-                  tabPanel(title = "Benchmarks",
+                  tabPanel(title = "Benchmark ranges",
                            selectInput(inputId = "range_count",
                                        label = "Number of benchmark ranges",
                                        choices = 2:6,
