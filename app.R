@@ -732,8 +732,8 @@ server <- function(input, output, session) {
   output$downloadData <- downloadHandler(
     filename = function() {
       paste0("plots_",
-             paste0(format(Sys.Date(), "%Y-%m-%d"),
-                    format(Sys.time(), "T%H%MZ", tz = "GMT")),
+             paste0(format(Sys.Date(), "%Y-%m-%d"), "_",
+                    format(Sys.time(), "%H%M", tz = "GMT")),
              ".zip")
     },
     content = function(file) {
