@@ -11,6 +11,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(httr)
+library(anytime)
 # library(plotly)
 
 # Define UI for application that draws a histogram
@@ -20,6 +21,7 @@ ui <- fluidPage(
   titlePanel("Plotting Indicator Values and Benchmarks"),
   
   # Sidebar with a slider input for number of bins 
+  # Could add dropdowns to subsets of reference data for specific regions/climates
   sidebarLayout(
     sidebarPanel(
       fileInput(inputId = "raw_data",
@@ -47,7 +49,7 @@ ui <- fluidPage(
                 value = ""),
       textInput(inputId = "quantiles",
                 label = "Quantile break percentages, separated by commas",
-                value = "25, 50, 75"),
+                value = "10,30,50,75,90"),
       hr(),
       
       # If you want to compare all data to a single plot that is within the csv/fetch command
@@ -81,6 +83,16 @@ ui <- fluidPage(
                                    min = 0,
                                    max = 100,
                                    value = 15)),
+      # Add time series checkbox
+      checkboxInput(inputId = "time_checkbox",
+                    label = "Include Time Series?",
+                    value = FALSE),
+      
+      # Add conditional panel for year/date field (from identifying fields)
+      conditionalPanel(condition = "input.time_checkbox != ''",
+                       selectInput(inputId = "date_field",
+                                   label = "Date Field",
+                                   choices = c(""))),
       
       # Only show the plot button if data have been uploaded/downloaded
       conditionalPanel(condition = "input.variable != ''",
@@ -89,7 +101,8 @@ ui <- fluidPage(
       # Only show if there are plot images to download
       conditionalPanel(condition = "input.plot_button >= 1",
                        downloadButton(outputId = 'downloadData',
-                                      label = 'Download results'))
+                                      label = 'Download results')),
+      
     ),
     
     # Show a plot of the generated distribution
@@ -330,13 +343,20 @@ ui <- fluidPage(
                            textOutput("quantile_breaks"),
                            plotOutput("benchmark_plot"),
                            # plotlyOutput("benchmark_plot"),
-                           textOutput("benchmark_summary")),
+                           textOutput("benchmark_summary"),
+                           
+                           # Add conditional plot for time series
+                           conditionalPanel(condition = "input.time_checkbox != ''",
+                                            plotOutput("timeseries_plot"),
+                                            textOutput("timeseries_caption"))),
+                                           
+                  
                   tabPanel(title = "Data",
                            tableOutput("data_table")))
       
     )
   )
-)
+) 
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -488,9 +508,13 @@ server <- function(input, output, session) {
                  
                  # List of identifying variables from the raw data
                  updateSelectInput(inputId = "plot_id_var",
-                                   choices = input$id_variables)
+                                   choices = c("",input$id_variables))
                  
-                 
+                 # update drop-down list for date field based on id_variables
+                 if (input$time_checkbox != "") {
+                   updateSelectInput(inputId = "date_field",
+                                     choices = c("",input$id_variables))
+                 }
                })
   
   observeEvent(eventExpr = input$plot_id_var,
@@ -625,9 +649,6 @@ server <- function(input, output, session) {
                                     size = 1.5,
                                     linetype = "dashed")
                      }
-                     
-                     
-                     
                      
                      
                      
@@ -788,6 +809,66 @@ server <- function(input, output, session) {
                           width = 9,
                           height = 4,
                           units = "in")
+                   
+                   if (input$time_checkbox != "" & input$date_field != "") {
+                     
+                     # Format date variable
+                     plotting_data[["date"]] <- anytime::anydate(plotting_data[[input$date_field]])
+                     
+                     # Pull out year from date
+                     plotting_data[["year"]] <- format(plotting_data[["date"]], format = "%Y")
+                     
+                     # Add boxplots for each year 
+                     workspace$timeseries_plot <- ggplot2::ggplot(data = plotting_data) +
+                       geom_boxplot(aes(x = year,
+                                        y = current_variable),
+                                    outlier.shape = NA) +
+                       labs(x = "Year",
+                            y = input$variable_name) +
+                       theme(panel.grid = element_blank(),
+                             panel.background = element_rect(fill = "gray95"))+
+                       coord_cartesian(ylim = quantile(plotting_data[["current_variable"]], c(0.1,0.95)))
+                     
+                     # add hline for single plot value
+                     if (input$study_plot != "" & input$plot_id_var != "") {
+                       
+                       # Subset input data to only include the single plot specified in the inputs
+                       comp_plotting_data <- plotting_data[plotting_data[[input$plot_id_var]] == input$study_plot,]
+                       
+                       workspace$timeseries_plot <- workspace$timeseries_plot + 
+                         geom_hline(data = comp_plotting_data,
+                                    aes(yintercept = current_variable),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                       # add hline for comparison value
+                     } else if (input$comparison_value != "" & input$comparison_checkbox != "FALSE") {
+                       # Subset input data to only include the single plot specified in the inputs
+                       workspace$timeseries_plot <- workspace$timeseries_plot + 
+                         geom_hline(aes(yintercept = input$comparison_value),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                     }
+                     
+                     # Render Figure
+                     output$timeseries_plot <- renderPlot(workspace$timeseries_plot)
+                     
+                     # Build caption
+                     # Create the caption for the time series plot
+                     timeseries_plot_caption <- paste0("Figure 3: The distribution of values for the indicator across time")
+                     
+                     output$timeseries_caption <- renderText(timeseries_plot_caption)
+                     
+                     # Save figure
+                     ggsave(filename = paste0(workspace$temp_directory, "/fig3_timeseries_plot.png"),
+                            plot = workspace$timeseries_plot,
+                            device = "png",
+                            width = 9,
+                            height = 4,
+                            units = "in")
+                     
+                   }
                    
                    updateTabsetPanel(session,
                                      inputId = "maintabs",
