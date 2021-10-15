@@ -49,7 +49,7 @@ ui <- fluidPage(
                 value = ""),
       textInput(inputId = "quantiles",
                 label = "Quantile break percentages, separated by commas",
-                value = "10,30,50,75,90"),
+                value = "25,50,75"),
       hr(),
       
       # If you want to compare all data to a single plot that is within the csv/fetch command
@@ -68,6 +68,7 @@ ui <- fluidPage(
       conditionalPanel(condition = "input.singleplot_checkbox != ''",
                        selectInput(inputId = "study_plot",
                                    label = "Comparison Plot",
+                                   multiple = TRUE,
                                    choices = c(""))),
       
       # If you want to compare to a single value based on a slider
