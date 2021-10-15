@@ -55,7 +55,7 @@ ui <- fluidPage(
       # If you want to compare all data to a single plot that is within the csv/fetch command
       conditionalPanel(condition = "input.comparison_checkbox ==''",
                        checkboxInput(inputId = "singleplot_checkbox",
-                                     label = "Compare to Single Plot?",
+                                     label = "Compare Plot(s)?",
                                      value = FALSE)),
       
       # Only show plot id dropdown  if single plot checkbox is clicked
@@ -67,7 +67,7 @@ ui <- fluidPage(
       # if the single plot checkbox is selected, add a field to specify which plot is needed
       conditionalPanel(condition = "input.singleplot_checkbox != ''",
                        selectInput(inputId = "study_plot",
-                                   label = "Comparison Plot",
+                                   label = "Comparison Plot(s)",
                                    multiple = TRUE,
                                    choices = c(""))),
       
@@ -79,7 +79,7 @@ ui <- fluidPage(
       
       # Only show comparison box if comparison checkbox is selected
       conditionalPanel(condition = "input.comparison_checkbox != ''",
-                       sliderInput(inputId = "comparison_value",
+                       numericInput(inputId = "comparison_value",
                                    label = "Comparison Value",
                                    min = 0,
                                    max = 100,
@@ -636,7 +636,20 @@ server <- function(input, output, session) {
                        # Subset input data to only include the single plot specified in the inputs
                        comp_plotting_data <- plotting_data[plotting_data[[input$plot_id_var]] == input$study_plot,]
                        
-                       workspace$quantile_plot <- workspace$quantile_plot + 
+                       # Redrawing workspace plot without the comparison plot data
+                       workspace$quantile_plot <- ggplot(data = plotting_data[plotting_data[[input$plot_id_var]] != input$study_plot,]) +
+                         geom_histogram(aes(y = current_variable,
+                                            fill = Quantile),
+                                        binwidth = 1) +
+                         scale_fill_manual(values = workspace$palette) +
+                         geom_hline(yintercept = quantiles,
+                                    size = 1.5,
+                                    color = "gray50") +
+                         labs(x = "Count of data points",
+                              y = input$variable_name) +
+                         theme(panel.grid = element_blank(),
+                               panel.background = element_rect(fill = "gray95")) +
+                         coord_flip() + 
                          geom_hline(data = comp_plotting_data,
                                     aes(yintercept = current_variable),
                                     col = "violet",
