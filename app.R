@@ -11,6 +11,7 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(httr)
+library(anytime)
 # library(plotly)
 
 # Define UI for application that draws a histogram
@@ -20,6 +21,7 @@ ui <- fluidPage(
   titlePanel("Plotting Indicator Values and Benchmarks"),
   
   # Sidebar with a slider input for number of bins 
+  # Could add dropdowns to subsets of reference data for specific regions/climates
   sidebarLayout(
     sidebarPanel(
       fileInput(inputId = "raw_data",
@@ -35,7 +37,7 @@ ui <- fluidPage(
       actionButton(inputId = "fetch_data",
                    label = "Fetch data from the Landscape Data Commons"),
       hr(),
-      selectInput(inputId = "id_variables",
+      selectInput(inputId = "id_variables", 
                   label = "Variable(s) with identifying, non-indicator information",
                   multiple = TRUE,
                   choices = c("")),
@@ -47,8 +49,52 @@ ui <- fluidPage(
                 value = ""),
       textInput(inputId = "quantiles",
                 label = "Quantile break percentages, separated by commas",
-                value = "25, 50, 75"),
+                value = "25,50,75"),
       hr(),
+      
+      # If you want to compare all data to a single plot that is within the csv/fetch command
+      conditionalPanel(condition = "input.comparison_checkbox ==''",
+                       checkboxInput(inputId = "singleplot_checkbox",
+                                     label = "Compare Plot(s)?",
+                                     value = FALSE)),
+      
+      # Only show plot id dropdown  if single plot checkbox is clicked
+      conditionalPanel(condition = "input.singleplot_checkbox != ''",
+                       selectInput(inputId = "plot_id_var",
+                                   label = "Plot ID Variable",
+                                   choices = c(""))),
+      
+      # if the single plot checkbox is selected, add a field to specify which plot is needed
+      conditionalPanel(condition = "input.singleplot_checkbox != ''",
+                       selectInput(inputId = "study_plot",
+                                   label = "Comparison Plot(s)",
+                                   multiple = TRUE,
+                                   choices = c(""))),
+      
+      # If you want to compare to a single value based on a slider
+      conditionalPanel(condition = "input.singleplot_checkbox == ''",
+                       checkboxInput(inputId = "comparison_checkbox",
+                                     label = "Compare to Single Value?",
+                                     value = FALSE)),
+      
+      # Only show comparison box if comparison checkbox is selected
+      conditionalPanel(condition = "input.comparison_checkbox != ''",
+                       numericInput(inputId = "comparison_value",
+                                   label = "Comparison Value",
+                                   min = 0,
+                                   max = 100,
+                                   value = 15)),
+      # Add time series checkbox
+      checkboxInput(inputId = "time_checkbox",
+                    label = "Include Time Series?",
+                    value = FALSE),
+      
+      # Add conditional panel for year/date field (from identifying fields)
+      conditionalPanel(condition = "input.time_checkbox != ''",
+                       selectInput(inputId = "date_field",
+                                   label = "Date Field",
+                                   choices = c(""))),
+      
       # Only show the plot button if data have been uploaded/downloaded
       conditionalPanel(condition = "input.variable != ''",
                        actionButton(inputId = "plot_button",
@@ -56,7 +102,8 @@ ui <- fluidPage(
       # Only show if there are plot images to download
       conditionalPanel(condition = "input.plot_button >= 1",
                        downloadButton(outputId = 'downloadData',
-                                      label = 'Download results'))
+                                      label = 'Download results')),
+      
     ),
     
     # Show a plot of the generated distribution
@@ -297,13 +344,20 @@ ui <- fluidPage(
                            textOutput("quantile_breaks"),
                            plotOutput("benchmark_plot"),
                            # plotlyOutput("benchmark_plot"),
-                           textOutput("benchmark_summary")),
+                           textOutput("benchmark_summary"),
+                           
+                           # Add conditional plot for time series
+                           conditionalPanel(condition = "input.time_checkbox != ''",
+                                            plotOutput("timeseries_plot"),
+                                            textOutput("timeseries_caption"))),
+                                           
+                  
                   tabPanel(title = "Data",
                            tableOutput("data_table")))
       
     )
   )
-)
+) 
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -452,6 +506,30 @@ server <- function(input, output, session) {
                  # Update!
                  updateSelectInput(inputId = "variable",
                                    choices = c("", variable_names[viable_variables & not_id_variable]))
+                 
+                 # List of identifying variables from the raw data
+                 updateSelectInput(inputId = "plot_id_var",
+                                   choices = c("",input$id_variables))
+                 
+                 # update drop-down list for date field based on id_variables
+                 if (input$time_checkbox != "") {
+                   updateSelectInput(inputId = "date_field",
+                                     choices = c("",input$id_variables))
+                 }
+               })
+  
+  observeEvent(eventExpr = input$plot_id_var,
+               handlerExpr = {
+                 
+                 # Updating possible comparison plots based on plot_id_var
+                 if (input$plot_id_var != "" & input$singleplot_checkbox != "") {
+                   
+                   plot_ids <- workspace$raw_data[[input$plot_id_var]]
+                   
+                   updateSelectInput(inputId = "study_plot",
+                                     choices = c("", plot_ids))
+                   
+                 }
                })
   
   ### When the quantiles are updated, do this ####
@@ -549,6 +627,44 @@ server <- function(input, output, session) {
                        theme(panel.grid = element_blank(),
                              panel.background = element_rect(fill = "gray95")) +
                        coord_flip()
+                     
+                     
+                     # add hline for single plot value
+                     
+                     if (input$study_plot != "" & input$plot_id_var != "") {
+                       
+                       # Subset input data to only include the single plot specified in the inputs
+                       comp_plotting_data <- plotting_data[plotting_data[[input$plot_id_var]] == input$study_plot,]
+                       
+                       # Redrawing workspace plot without the comparison plot data
+                       workspace$quantile_plot <- ggplot(data = plotting_data[plotting_data[[input$plot_id_var]] != input$study_plot,]) +
+                         geom_histogram(aes(y = current_variable,
+                                            fill = Quantile),
+                                        binwidth = 1) +
+                         scale_fill_manual(values = workspace$palette) +
+                         geom_hline(yintercept = quantiles,
+                                    size = 1.5,
+                                    color = "gray50") +
+                         labs(x = "Count of data points",
+                              y = input$variable_name) +
+                         theme(panel.grid = element_blank(),
+                               panel.background = element_rect(fill = "gray95")) +
+                         coord_flip() + 
+                         geom_hline(data = comp_plotting_data,
+                                    aes(yintercept = current_variable),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                     } else if (input$comparison_value != "" & input$comparison_checkbox != "FALSE") {  # add hline for comparison value
+                       # Subset input data to only include the single plot specified in the inputs
+                       workspace$quantile_plot <- workspace$quantile_plot + 
+                         geom_hline(aes(yintercept = input$comparison_value),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                     }
+                     
+                     
                      
                      output$quantiles_plot <- renderPlot(workspace$quantile_plot)
                      # output$quantiles_plot <- renderPlotly(ggplotly(workspace$quantile_plot))
@@ -660,7 +776,7 @@ server <- function(input, output, session) {
                    
                    percent_by_category <- round(100 * benchmark_results_summary / sum(benchmark_results_summary),
                                                 digits = 1)
-
+                   
                    # Plot the histogram with benchmark info!
                    workspace$benchmark_plot <- ggplot(data = plotting_data) +
                      geom_histogram(aes(y = current_variable,
@@ -674,6 +790,30 @@ server <- function(input, output, session) {
                            panel.background = element_rect(fill = "gray95")) +
                      coord_flip()
                    
+                   
+                   # add hline for single plot value
+                   if (input$study_plot != "" & input$plot_id_var != "") {
+                     
+                     # Subset input data to only include the single plot specified in the inputs
+                     comp_plotting_data <- plotting_data[plotting_data[[input$plot_id_var]] == input$study_plot,]
+                     
+                     workspace$benchmark_plot <- workspace$benchmark_plot + 
+                       geom_hline(data = comp_plotting_data,
+                                  aes(yintercept = current_variable),
+                                  col = "violet",
+                                  size = 1.5,
+                                  linetype = "dashed")
+                     # add hline for comparison value
+                   } else if (input$comparison_value != "" & input$comparison_checkbox != "FALSE") {
+                     # Subset input data to only include the single plot specified in the inputs
+                     workspace$benchmark_plot <- workspace$benchmark_plot + 
+                       geom_hline(aes(yintercept = input$comparison_value),
+                                  col = "violet",
+                                  size = 1.5,
+                                  linetype = "dashed")
+                   }
+                   
+                   
                    output$benchmark_plot <- renderPlot(workspace$benchmark_plot)
                    # output$benchmark_plot <- renderPlotly(plotly::ggplotly(workspace$benchmark_plot))
                    
@@ -684,16 +824,91 @@ server <- function(input, output, session) {
                           height = 4,
                           units = "in")
                    
+                   if (input$time_checkbox != "" & input$date_field != "") {
+                     
+                     # Format date variable
+                     plotting_data[["date"]] <- anytime::anydate(plotting_data[[input$date_field]])
+                     
+                     # Pull out year from date
+                     plotting_data[["year"]] <- format(plotting_data[["date"]], format = "%Y")
+                     
+                     # Add boxplots for each year 
+                     workspace$timeseries_plot <- ggplot2::ggplot(data = plotting_data) +
+                       geom_boxplot(aes(x = year,
+                                        y = current_variable),
+                                    outlier.shape = NA) +
+                       labs(x = "Year",
+                            y = input$variable_name) +
+                       theme(panel.grid = element_blank(),
+                             panel.background = element_rect(fill = "gray95"))+
+                       coord_cartesian(ylim = quantile(plotting_data[["current_variable"]], c(0.1,0.95)))
+                     
+                     # add hline for single plot value
+                     if (input$study_plot != "" & input$plot_id_var != "") {
+                       
+                       # Subset input data to only include the single plot specified in the inputs
+                       comp_plotting_data <- plotting_data[plotting_data[[input$plot_id_var]] == input$study_plot,]
+                       
+                       workspace$timeseries_plot <- workspace$timeseries_plot + 
+                         geom_hline(data = comp_plotting_data,
+                                    aes(yintercept = current_variable),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                       # add hline for comparison value
+                     } else if (input$comparison_value != "" & input$comparison_checkbox != "FALSE") {
+                       # Subset input data to only include the single plot specified in the inputs
+                       workspace$timeseries_plot <- workspace$timeseries_plot + 
+                         geom_hline(aes(yintercept = input$comparison_value),
+                                    col = "violet",
+                                    size = 1.5,
+                                    linetype = "dashed")
+                     }
+                     
+                     # Render Figure
+                     output$timeseries_plot <- renderPlot(workspace$timeseries_plot)
+                     
+                     # Build caption
+                     # Create the caption for the time series plot
+                     timeseries_plot_caption <- paste0("Figure 3: The distribution of values for the indicator across time")
+                     
+                     output$timeseries_caption <- renderText(timeseries_plot_caption)
+                     
+                     # Save figure
+                     ggsave(filename = paste0(workspace$temp_directory, "/fig3_timeseries_plot.png"),
+                            plot = workspace$timeseries_plot,
+                            device = "png",
+                            width = 9,
+                            height = 4,
+                            units = "in")
+                     
+                   }
+                   
                    updateTabsetPanel(session,
                                      inputId = "maintabs",
                                      selected = "Results") 
                    
                    # Create the caption for the quantile plot
-                   quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " data points, broken into ", length(quantiles) + 1, " quantiles. ",
-                                                   paste0(paste0(paste0(names(quantiles), " of data points have a value <= "),
-                                                                 round(quantiles, digits = 1),
-                                                                 collapse = ", "),
-                                                          ", and 100% of data points have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)))
+                   if (input$study_plot != "" & input$plot_id_var != "") {
+                     quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " data points, broken into ", length(quantiles) + 1, " quantiles. ",
+                                                     paste0(paste0(paste0(names(quantiles), " of data points have a value <= "),
+                                                                   round(quantiles, digits = 1),
+                                                                   collapse = ", "),
+                                                            ", and 100% of data points have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)), ". The ", paste0(input$study_plot), " plot is shown as a pink dashed line and has a value of ", paste0(comp_plotting_data[[input$variable]]))
+                   } else if (input$comparison_value != "" & input$comparison_checkbox != "FALSE") {
+                     quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " data points, broken into ", length(quantiles) + 1, " quantiles. ",
+                                                     paste0(paste0(paste0(names(quantiles), " of data points have a value <= "),
+                                                                   round(quantiles, digits = 1),
+                                                                   collapse = ", "),
+                                                            ", and 100% of data points have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)), ". The ", paste0(input$study_plot), "comparison value is shown as a pink dashed line and has a value of ", paste0(input$comparison_value))
+                   } else {
+                     quantile_plot_caption <- paste0("Figure 1: The distribution of values for the indicator across ", sum(benchmark_results_summary), " data points, broken into ", length(quantiles) + 1, " quantiles. ",
+                                                     paste0(paste0(paste0(names(quantiles), " of data points have a value <= "),
+                                                                   round(quantiles, digits = 1),
+                                                                   collapse = ", "),
+                                                            ", and 100% of data points have a value <= ", round(max(current_data_vector, na.rm = TRUE), digits = 1)))
+                   }
+                   
                    
                    output$quantile_breaks <- renderText(quantile_plot_caption)
                    

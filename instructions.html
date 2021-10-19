@@ -12,9 +12,8 @@
 
 
 
-<title>instructions.knit</title>
+<title>instructions.utf8</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -23,8 +22,7 @@
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-      .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-  </style>
+    </style>
 
 
 
@@ -65,8 +63,12 @@
 <h3>5) Decide your quantile break percentages</h3>
 <p>The histogram will be broken into quantiles according to these percentages, visualized as a histogram with color and vertical lines representing the breakpoints. As an example, entering “33, 67” will result in showing the value for the variable below which 33% percent of observations fall and the value of the variable below which 67% of the observations fall. The percentages entered must be numbers between 0 and 100 separated by commas. If your entry is invalid, the figure will default to showing the 50% break.</p>
 </div>
+<div id="choose-to-compare-your-data-to-a-single-plot-or-to-a-single-value" class="section level3">
+<h3>6) Choose to compare your data to a single plot or to a single value</h3>
+<p>It may be helpful to compare a single plot to the distribution of a larger set of data. To do this you may select a plot from your input data by selecting the “Compare to Single Plot” check-box and selecting the plot identifier and individual plot you are interested in. If the plot you want to compare is not present in the input data but you know the plot’s indicator values you can select the “Compare to a Single Value” check-box and use the slider to adjust the indicator value. In both cases the comparison value will show up in the results window as a violet dashed line.</p>
+</div>
 <div id="define-your-benchmark-category-ranges" class="section level3">
-<h3>6) Define your benchmark category ranges</h3>
+<h3>7) Define your benchmark category ranges</h3>
 <p>A benchmark is an inequality against which all the values will be compared. The figure will show the distribution of values as a histogram with color coded according to which benchmark categories the observations qualify for.</p>
 <p>Each benchmark category requires a lower limit, the relationship to the lower limit, an upper limit, and a relationship to that upper limit. For example, if the category “Meeting” management goals would be true if the percentage of bare soil is below 25%, then the lower limit and relationship would be 0% &lt;= x and the upper limit and relationship would be x &lt; 25%; the corresponding “Not Meeting” range would be 25% &lt;= x and x &lt;= 100. A benchmark category can have multiple ranges entered on separate rows. Any data that do not qualify for any of the defined benchmark categories will be treated as belonging to the category “Undefined”. The categories are evaluated in descending order, so it is possible to have overlapping category ranges, but the last category that a data point qualified for is the one that it will be assigned to.</p>
 </div>
